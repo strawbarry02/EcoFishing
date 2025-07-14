@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoFishing Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 414px; /* iPhone 8 Plus width */
+            height: 736px; /* iPhone 8 Plus height */
+            background-color: white;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .header {
+            padding: 15px;
+            background-color: #2E7D32;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .time {
+            font-size: 14px;
+        }
+
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background-color: #E8F5E9;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-title {
+            font-size: 14px;
+            color: #2E7D32;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1B5E20;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            color: #388E3C;
+            display: flex;
+            align-items: center;
+        }
+
+        .stat-change.negative {
+            color: #D32F2F;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background-color: #2E7D32;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-btn:hover {
+            background-color: #1B5E20;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .quick-action {
+            background-color: #E8F5E9;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+        .quick-action i {
+            font-size: 24px;
+            color: #2E7D32;
+            margin-bottom: 5px;
+        }
+
+        .quick-action span {
+            font-size: 14px;
+            color: #1B5E20;
+            font-weight: 500;
+        }
+
+        .weather-alerts {
+            background-color: #E8F5E9;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .weather-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1B5E20;
+            margin-bottom: 10px;
+        }
+
+        .weather-days {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .weather-day {
+            text-align: center;
+        }
+
+        .weather-day-name {
+            font-size: 14px;
+            color: #2E7D32;
+            margin-bottom: 5px;
+        }
+
+        .weather-temp {
+            font-size: 12px;
+            color: #388E3C;
+        }
+
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            padding: 10px;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .bottom-nav.active {
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #757575;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .nav-item.active {
+            color: #2E7D32;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .menu-overlay.active {
+            display: flex;
+        }
+
+        .menu-content {
+            background-color: white;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            padding: 20px;
+            animation: slideUp 0.3s ease;
+        }
+
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .menu-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1B5E20;
+        }
+
+        .menu-close {
+            font-size: 24px;
+            color: #757575;
+            cursor: pointer;
+        }
+
+        .menu-items {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .menu-item {
+            background-color: #E8F5E9;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+        .menu-item i {
+            font-size: 24px;
+            color: #2E7D32;
+            margin-bottom: 5px;
+        }
+
+        .menu-item span {
+            font-size: 14px;
+            color: #1B5E20;
+            font-weight: 500;
+        }
+
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-item span {
+            font-size: 16px;
+            color: #212121;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #2E7D32;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .canvas-container {
+            height: 200px;
+            width: 100%;
+            background-color: #121212;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Font Awesome icons */
+        .fas, .far {
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="time" id="currentTime">10:30 AM</div>
+            <div class="title">EcoFishing Dashboard</div>
+            <div class="menu-btn" id="menuBtn"><i class="fas fa-bars"></i></div>
+        </div>
+
+        <div class="content">
+            <div class="canvas-container">
+                <canvas id="glcanvas"></canvas>
+            </div>
+
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-title">Sustainability Score</div>
+                    <div class="stat-value">85%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Catches This Month</div>
+                    <div class="stat-value">12</div>
+                    <div class="stat-change">+25% <i class="fas fa-arrow-up"></i></div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-btn" id="improveBtn">Improve</button>
+                <button class="action-btn" id="addBtn">Add</button>
+            </div>
+
+            <div class="quick-actions">
+                <div class="quick-action" id="logCatch">
+                    <i class="fas fa-fish"></i>
+                    <span>Log Catch</span>
+                </div>
+                <div class="quick-action" id="myCatch">
+                    <i class="fas fa-book"></i>
+                    <span>My Catch</span>
+                </div>
+                <div class="quick-action" id="education">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Education</span>
+                </div>
+                <div class="quick-action" id="map">
+                    <i class="fas fa-map"></i>
+                    <span>Map</span>
+                </div>
+            </div>
+
+            <div class="weather-alerts">
+                <div class="weather-title">Weather Alerts</div>
+                <div class="weather-days">
+                    <div class="weather-day">
+                        <div class="weather-day-name">Mon</div>
+                        <div class="weather-temp">65°F / 75°F</div>
+                    </div>
+                    <div class="weather-day">
+                        <div class="weather-day-name">Tue</div>
+                        <div class="weather-temp">66°F / 78°F</div>
+                    </div>
+                    <div class="weather-day">
+                        <div class="weather-day-name">Wed</div>
+                        <div class="weather-temp">68°F / 80°F</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-nav" id="bottomNav">
+            <div class="nav-item active">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-book"></i>
+                <span>Catch Log</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-map"></i>
+                <span>Ocean Map</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Market Trends</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-bars" id="menuBtnBottom"></i>
+                <span>Menu</span>
+            </div>
+        </div>
+
+        <div class="menu-overlay" id="menuOverlay">
+            <div class="menu-content">
+                <div class="menu-header">
+                    <div class="menu-title">Menu</div>
+                    <div class="menu-close" id="menuClose"><i class="fas fa-times"></i></div>
+                </div>
+
+                <div class="menu-items">
+                    <div class="menu-item">
+                        <i class="fas fa-comments"></i>
+                        <span>Forum</span>
+                    </div>
+                    <div class="menu-item">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>Education</span>
+                    </div>
+                    <div class="menu-item">
+                        <i class="fas fa-fish"></i>
+                        <span>Fish Identifier</span>
+                    </div>
+                    <div class="menu-item">
+                        <i class="fas fa-cloud-sun"></i>
+                        <span>Weather</span>
+                    </div>
+                    <div class="menu-item" id="settingsBtn">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </div>
+                    <div class="menu-item">
+                        <i class="fas fa-user"></i>
+                        <span>Profile</span>
+                    </div>
+                </div>
+
+                <div id="settingsContent" style="display: none; margin-top: 20px;">
+                    <div class="settings-item">
+                        <span>Dark Mode</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-item">
+                        <span>Notifications</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-item">
+                        <span>Logout</span>
+                        <i class="fas fa-sign-out-alt"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="clickSound" src="http://cdn.freesound.org/previews/668/668791_6012605-lq.mp3"></audio>
+
+    <script>
+        // Sound effect
+        const clickSound = document.getElementById('clickSound');
+        const interactiveElements = document.querySelectorAll(
+            '.action-btn, .quick-action, .nav-item, .menu-item, #menuBtn, #menuBtnBottom, #menuClose, #settingsBtn, .settings-item'
+        );
+        
+        interactiveElements.forEach(element => {
+            element.addEventListener('click', () => {
+                clickSound.currentTime = 0;
+                clickSound.play();
+            });
+        });
+
+        // Update time
+        function updateTime() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            document.getElementById('currentTime').textContent = `${hours}:${minutes} ${ampm}`;
+        }
+
+        updateTime();
+        setInterval(updateTime, 60000); // Update every minute
+
+        // Menu functionality
+        const menuBtn = document.getElementById('menuBtn');
+        const menuBtnBottom = document.getElementById('menuBtnBottom');
+        const menuClose = document.getElementById('menuClose');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const bottomNav = document.getElementById('bottomNav');
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsContent = document.getElementById('settingsContent');
+
+        menuBtn.addEventListener('click', () => {
+            menuOverlay.classList.add('active');
+            bottomNav.classList.remove('active');
+        });
+
+        menuBtnBottom.addEventListener('click', () => {
+            menuOverlay.classList.add('active');
+            bottomNav.classList.remove('active');
+        });
+
+        menuClose.addEventListener('click', () => {
+            menuOverlay.classList.remove('active');
+            bottomNav.classList.add('active');
+        });
+
+        settingsBtn.addEventListener('click', () => {
+            if (settingsContent.style.display === 'none') {
+                settingsContent.style.display = 'block';
+            } else {
+                settingsContent.style.display = 'none';
+            }
+        });
+
+        // Bottom nav active state
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                navItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+
+        // Show bottom nav initially
+        bottomNav.classList.add('active');
+
+        // WebGL/OpenGL scene
+        const canvas = document.getElementById('glcanvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+
+        if (!gl) {
+            alert('Unable to initialize WebGL. Your browser may not support it.');
+        }
+
+        // Resize canvas to fit container
+        function resizeCanvas() {
+            const container = document.querySelector('.canvas-container');
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            gl.viewport(0, 0, canvas.width, canvas.height);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Shader sources
+        const vsSource = `
+            attribute vec4 aVertexPosition;
+            attribute vec4 aVertexColor;
+            
+            uniform mat4 uModelViewMatrix;
+            uniform mat4 uProjectionMatrix;
+            
+            varying lowp vec4 vColor;
+            
+            void main(void) {
+                gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+                vColor = aVertexColor;
+            }
+        `;
+
+        const fsSource = `
+            varying lowp vec4 vColor;
+            
+            void main(void) {
+                gl_FragColor = vColor;
+            }
+        `;
+
+        // Initialize shaders
+        function initShaderProgram(gl, vsSource, fsSource) {
+            const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
+            const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
+            
+            const shaderProgram = gl.createProgram();
+            gl.attachShader(shaderProgram, vertexShader);
+            gl.attachShader(shaderProgram, fragmentShader);
+            gl.linkProgram(shaderProgram);
+            
+            if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+                alert('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
+                return null;
+            }
+            
+            return shaderProgram;
+        }
+
+        function loadShader(gl, type, source) {
+            const shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                alert('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader));
+                gl.deleteShader(shader);
+                return null;
+            }
+            
+            return shader;
+        }
+
+        // Initialize buffers
+        function initBuffers(gl) {
+            // Create a fish shape
+            const vertices = [
+                // Body
+                0.0, 0.5, 0.0,  // top center
+                -0.5, 0.0, 0.0,  // left middle
+                0.0, -0.5, 0.0,  // bottom center
+                0.5, 0.0, 0.0,   // right middle
+                
+                // Tail
+                -1.0, 0.2, 0.0,  // top tail
+                -1.0, -0.2, 0.0, // bottom tail
+                
+                // Dorsal fin
+                0.0, 0.7, 0.0,   // top fin
+                
+                // Pelvic fin
+                -0.2, -0.3, 0.0,  // left fin
+                0.2, -0.3, 0.0    // right fin
+            ];
+            
+            const colors = [
+                [0.2, 0.6, 0.8, 1.0],  // body top
+                [0.1, 0.5, 0.7, 1.0],  // body left
+                [0.2, 0.6, 0.8, 1.0],  // body bottom
+                [0.1, 0.5, 0.7, 1.0],  // body right
+                [0.8, 0.4, 0.1, 1.0],  // tail top
+                [0.8, 0.4, 0.1, 1.0],  // tail bottom
+                [0.8, 0.2, 0.1, 1.0],  // dorsal fin
+                [0.8, 0.4, 0.1, 1.0],  // pelvic left
+                [0.8, 0.4, 0.1, 1.0]   // pelvic right
+            ];
+            
+            let generatedColors = [];
+            for (let i = 0; i < colors.length; i++) {
+                generatedColors = generatedColors.concat(colors[i]);
+            }
+            
+            const indices = [
+                // Body
+                0, 1, 2,
+                0, 2, 3,
+                0, 3, 1,
+                
+                // Tail
+                1, 4, 5,
+                1, 5, 2,
+                
+                // Dorsal fin
+                0, 1, 6,
+                
+                // Pelvic fins
+                2, 7, 8
+            ];
+            
+            const vertexBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+            
+            const colorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(generatedColors), gl.STATIC_DRAW);
+            
+            const indexBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+            
+            return {
+                vertices: vertexBuffer,
+                colors: colorBuffer,
+                indices: indexBuffer,
+                vertexCount: indices.length
+            };
+        }
+
+        // Draw the scene
+        function drawScene(gl, programInfo, buffers) {
+            gl.clearColor(0.0, 0.1, 0.2, 1.0);
+            gl.clearDepth(1.0);
+            gl.enable(gl.DEPTH_TEST);
+            gl.depthFunc(gl.LEQUAL);
+            
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            
+            const fieldOfView = 45 * Math.PI / 180;
+            const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+            const zNear = 0.1;
+            const zFar = 100.0;
+            const projectionMatrix = mat4.create();
+            
+            mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
+            
+            const modelViewMatrix = mat4.create();
+            mat4.translate(modelViewMatrix, modelViewMatrix, [0.0, 0.0, -5.0]);
+            mat4.rotate(modelViewMatrix, modelViewMatrix, fishRotation, [0.0, 1.0, 0.0]);
+            mat4.scale(modelViewMatrix, modelViewMatrix, [fishScale, fishScale, fishScale]);
+            
+            // Bind vertex buffer
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffers.vertices);
+            gl.vertexAttribPointer(
+                programInfo.attribLocations.vertexPosition,
+                3,
+                gl.FLOAT,
+                false,
+                0,
+                0
+            );
+            gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
+            
+            // Bind color buffer
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffers.colors);
+            gl.vertexAttribPointer(
+                programInfo.attribLocations.vertexColor,
+                4,
+                gl.FLOAT,
+                false,
+                0,
+                0
+            );
+            gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);
+            
+            // Bind index buffer
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
+            
+            gl.useProgram(programInfo.program);
+            
+            gl.uniformMatrix4fv(
+                programInfo.uniformLocations.projectionMatrix,
+                false,
+                projectionMatrix
+            );
+            
+            gl.uniformMatrix4fv(
+                programInfo.uniformLocations.modelViewMatrix,
+                false,
+                modelViewMatrix
+            );
+            
+            gl.drawElements(gl.TRIANGLES, buffers.vertexCount, gl.UNSIGNED_SHORT, 0);
+        }
+
+        // Scene variables
+        let fishRotation = 0.0;
+        let fishScale = 0.8;
+        let rotating = true;
+
+        // Main function
+        function main() {
+            const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
+            
+            const programInfo = {
+                program: shaderProgram,
+                attribLocations: {
+                    vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
+                    vertexColor: gl.getAttribLocation(shaderProgram, 'aVertexColor')
+                },
+                uniformLocations: {
+                    projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
+                    modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix')
+                }
+            };
+            
+            const buffers = initBuffers(gl);
+            
+            let then = 0;
+            
+            // Button event listeners
+            document.getElementById('improveBtn').addEventListener('click', () => {
+                fishScale = Math.min(1.2, fishScale + 0.1);
+            });
+            
+            document.getElementById('addBtn').addEventListener('click', () => {
+                fishScale = Math.max(0.5, fishScale - 0.1);
+            });
+            
+            document.getElementById('logCatch').addEventListener('click', () => {
+                rotating = !rotating;
+            });
+            
+            // Render loop
+            function render(now) {
+                now *= 0.001;
+                const deltaTime = now - then;
+                then = now;
+                
+                if (rotating) {
+                    fishRotation += deltaTime * 0.5;
+                }
+                
+                drawScene(gl, programInfo, buffers);
+                requestAnimationFrame(render);
+            }
+            
+            requestAnimationFrame(render);
+        }
+
+        // Matrix library (simplified version)
+        const mat4 = {
+            create: function() {
+                return new Float32Array(16);
+            },
+            perspective: function(out, fovy, aspect, near, far) {
+                const f = 1.0 / Math.tan(fovy / 2);
+                out[0] = f / aspect;
+                out[1] = 0;
+                out[2] = 0;
+                out[3] = 0;
+                out[4] = 0;
+                out[5] = f;
+                out[6] = 0;
+                out[7] = 0;
+                out[8] = 0;
+                out[9] = 0;
+                out[10] = (far + near) / (near - far);
+                out[11] = -1;
+                out[12] = 0;
+                out[13] = 0;
+                out[14] = (2 * far * near) / (near - far);
+                out[15] = 0;
+                return out;
+            },
+            translate: function(out, a, v) {
+                const x = v[0], y = v[1], z = v[2];
+                
+                out[0] = a[0]; out[1] = a[1]; out[2] = a[2]; out[3] = a[3];
+                out[4] = a[4]; out[5] = a[5]; out[6] = a[6]; out[7] = a[7];
+                out[8] = a[8]; out[9] = a[9]; out[10] = a[10]; out[11] = a[11];
+                
+                out[12] = a[0] * x + a[4] * y + a[8] * z + a[12];
+                out[13] = a[1] * x + a[5] * y + a[9] * z + a[13];
+                out[14] = a[2] * x + a[6] * y + a[10] * z + a[14];
+                out[15] = a[3] * x + a[7] * y + a[11] * z + a[15];
+                
+                return out;
+            },
+            rotate: function(out, a, rad, axis) {
+                let x = axis[0], y = axis[1], z = axis[2];
+                let len = Math.sqrt(x * x + y * y + z * z);
+                
+                if (len < 0.000001) { return null; }
+                
+                len = 1 / len;
+                x *= len;
+                y *= len;
+                z *= len;
+                
+                const s = Math.sin(rad);
+                const c = Math.cos(rad);
+                const t = 1 - c;
+                
+                const a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3];
+                const a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7];
+                const a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
+                
+                const b00 = x * x * t + c, b01 = y * x * t + z * s, b02 = z * x * t - y * s;
+                const b10 = x * y * t - z * s, b11 = y * y * t + c, b12 = z * y * t + x * s;
+                const b20 = x * z * t + y * s, b21 = y * z * t - x * s, b22 = z * z * t + c;
+                
+                out[0] = a00 * b00 + a10 * b01 + a20 * b02;
+                out[1] = a01 * b00 + a11 * b01 + a21 * b02;
+                out[2] = a02 * b00 + a12 * b01 + a22 * b02;
+                out[3] = a03 * b00 + a13 * b01 + a23 * b02;
+                
+                out[4] = a00 * b10 + a10 * b11 + a20 * b12;
+                out[5] = a01 * b10 + a11 * b11 + a21 * b12;
+                out[6] = a02 * b10 + a12 * b11 + a22 * b12;
+                out[7] = a03 * b10 + a13 * b11 + a23 * b12;
+                
+                out[8] = a00 * b20 + a10 * b21 + a20 * b22;
+                out[9] = a01 * b20 + a11 * b21 + a21 * b22;
+                out[10] = a02 * b20 + a12 * b21 + a22 * b22;
+                out[11] = a03 * b20 + a13 * b21 + a23 * b22;
+                
+                out[12] = a[12];
+                out[13] = a[13];
+                out[14] = a[14];
+                out[15] = a[15];
+                
+                return out;
+            },
+            scale: function(out, a, v) {
+                const x = v[0], y = v[1], z = v[2];
+                
+                out[0] = a[0] * x;
+                out[1] = a[1] * x;
+                out[2] = a[2] * x;
+                out[3] = a[3] * x;
+                
+                out[4] = a[4] * y;
+                out[5] = a[5] * y;
+                out[6] = a[6] * y;
+                out[7] = a[7] * y;
+                
+                out[8] = a[8] * z;
+                out[9] = a[9] * z;
+                out[10] = a[10] * z;
+                out[11] = a[11] * z;
+                
+                out[12] = a[12];
+                out[13] = a[13];
+                out[14] = a[14];
+                out[15] = a[15];
+                
+                return out;
+            }
+        };
+
+        // Start everything
+        main();
+    </script>
+</body>
+</html>
