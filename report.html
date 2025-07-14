@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fish Details</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            width: 375px;
+            height: 667px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .header {
+            padding: 20px;
+            background: #2E86AB;
+            color: white;
+            text-align: center;
+        }
+        
+        .time {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        h1 {
+            margin: 10px 0;
+            font-size: 24px;
+        }
+        
+        .fish-name {
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            color: #2E86AB;
+        }
+        
+        .details {
+            padding: 0 20px;
+        }
+        
+        .detail-row {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
+        .detail-label {
+            font-weight: bold;
+            width: 120px;
+            color: #555;
+        }
+        
+        .detail-value {
+            flex: 1;
+        }
+        
+        .sustainability {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            margin-top: 30px;
+        }
+        
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 48%;
+        }
+        
+        .save-btn {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .report-btn {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        #fish-container {
+            width: 100%;
+            height: 150px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="time">10:30 AM</div>
+            <h1>Fish Details</h1>
+        </div>
+        
+        <div class="fish-name">Bass</div>
+        
+        <div id="fish-container"></div>
+        
+        <div class="details">
+            <div class="detail-row">
+                <div class="detail-label">Scientific Name</div>
+                <div class="detail-value">Micropterus spp.</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Habitat</div>
+                <div class="detail-value">Lakes, Rivers</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Common Size</div>
+                <div class="detail-value">30-50 cm</div>
+            </div>
+            
+            <div class="sustainability">
+                Department of Fisheries Malaysia (DOF) does not recognize bass as a local sport fish.
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Seasonal Availability</div>
+                <div class="detail-value">Spring, Summer</div>
+            </div>
+        </div>
+        
+        <div class="buttons">
+            <button class="save-btn" id="saveBtn">Save Species</button>
+            <button class="report-btn" id="reportBtn">Report Sighting</button>
+        </div>
+    </div>
+
+    <!-- Three.js for 3D fish -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Audio setup
+        const audio = new Audio("http://cdn.freesound.org/previews/668/668791_6012605-lq.mp3");
+        
+        // Button click handlers
+        document.getElementById('saveBtn').addEventListener('click', () => {
+            audio.currentTime = 0;
+            audio.play();
+            alert('Species saved successfully!');
+        });
+        
+        document.getElementById('reportBtn').addEventListener('click', () => {
+            audio.currentTime = 0;
+            audio.play();
+            alert('Sighting reported successfully!');
+        });
+        
+        // 3D Fish Scene
+        const container = document.getElementById('fish-container');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(renderer.domElement);
+        
+        // Fish body
+        const fishGeometry = new THREE.SphereGeometry(1, 32, 32);
+        const fishMaterial = new THREE.MeshPhongMaterial({ 
+            color: 0x3a5f0b,
+            shininess: 100
+        });
+        const fish = new THREE.Mesh(fishGeometry, fishMaterial);
+        fish.scale.set(1.5, 0.8, 0.5);
+        scene.add(fish);
+        
+        // Fish tail
+        const tailGeometry = new THREE.ConeGeometry(0.5, 1.5, 4);
+        const tail = new THREE.Mesh(tailGeometry, fishMaterial);
+        tail.position.x = -1.5;
+        tail.rotation.z = Math.PI / 2;
+        fish.add(tail);
+        
+        // Eye
+        const eyeGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+        const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        const eye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+        eye.position.set(0.8, 0.4, 0.4);
+        fish.add(eye);
+        
+        // Lighting
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(1, 1, 1);
+        scene.add(light);
+        
+        const ambientLight = new THREE.AmbientLight(0x404040);
+        scene.add(ambientLight);
+        
+        camera.position.z = 3;
+        
+        // Animation
+        function animate() {
+            requestAnimationFrame(animate);
+            fish.rotation.y += 0.01;
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+    </script>
+</body>
+</html>
